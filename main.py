@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # always initialize pygame
 pygame.init()
@@ -26,7 +27,7 @@ enemyImg = pygame.image.load("img/ufo.png")
 
 # Use random library to make enemy appear in random places
 
-enemyX = random.randint(0, 800)
+enemyX = random.randint(0, 836)
 enemyY = random.randint(50, 110)
 enemyX_change = 0.2
 enemyY_change = 40
@@ -44,6 +45,8 @@ bulletX_change = 0
 # Speed of bullet
 bulletY_change = 4
 bulletState = "ready"
+
+score = 0
 
 
 def player(x, y):
@@ -63,6 +66,25 @@ def fire(x, y):
     screen.blit(bulletImg, (x + 16, y + 10))
 
 
+# Function to calculate the distance between the bullet and the enemy to determine if they collided.
+# Is the square root of (x1 - x2)^2 + (y1 - y2)^2
+def collision(enemyX, enemyY, bulletX, bulletY):
+    distance = math.sqrt(math.pow(enemyX - bulletX, 2) + (math.pow(enemyY - bulletY, 2)))
+    if distance < 27:
+        return True
+    else:
+        return False
+
+
+def destroy():
+    global bulletY, bulletState, enemyX, enemyY, score
+    bulletY = 490
+    bulletState = "ready"
+    score += 1
+    print(score)
+    enemyX = random.randint(0, 836)
+    enemyY = random.randint(50, 110)
+
 # Game loop: to keep the window open until user decides to close it
 running = True
 while running:
@@ -76,14 +98,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # If key stroke is pressed check if it is right or left
+        # If key stroke is pressed check if it is right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 playerX_change = -2
             if event.key == pygame.K_RIGHT:
                 playerX_change = 2
             if event.key == pygame.K_SPACE:
-                if bulletState is "ready":
+                if bulletState == "ready":
                     bulletX = playerX
                     fire(bulletX, bulletY)
 
@@ -120,8 +142,12 @@ while running:
         fire(bulletX, bulletY)
         bulletY -= bulletY_change
 
-    # Calling player function to avoid it to disappear
+    # Collision
+    collided = collision(enemyX, enemyY, bulletX, bulletY)
+    if collided:
+        destroy()
 
+    # Calling player function to avoid it to disappear
     player(playerX, playerY)
     enemy(enemyX, enemyY)
 
