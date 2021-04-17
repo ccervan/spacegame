@@ -41,8 +41,10 @@ bulletImg = pygame.image.load("img/bullet.png")
 bulletX = 0
 bulletY = 490
 bulletX_change = 0
-bulletY_change = 10
+# Speed of bullet
+bulletY_change = 4
 bulletState = "ready"
+
 
 def player(x, y):
     # Method to draw on the screen
@@ -62,8 +64,6 @@ def fire(x, y):
 
 
 # Game loop: to keep the window open until user decides to close it
-
-
 running = True
 while running:
     # Background color of screen. Takes RGB values
@@ -79,11 +79,13 @@ while running:
     # If key stroke is pressed check if it is right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change = -3
+                playerX_change = -2
             if event.key == pygame.K_RIGHT:
-                playerX_change = 3
+                playerX_change = 2
             if event.key == pygame.K_SPACE:
-                fire(playerX, bulletY)
+                if bulletState is "ready":
+                    bulletX = playerX
+                    fire(bulletX, bulletY)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -93,7 +95,6 @@ while running:
     playerX += playerX_change
 
     # Boundaries for the ship on screen
-
     if playerX <= 0:
         playerX = 0
     elif playerX >= 836:
@@ -111,8 +112,12 @@ while running:
         enemyY += enemyY_change
 
     # Bullet movement
+    if bulletY <= 0:
+        bulletY = 490
+        bulletState = "ready"
+
     if bulletState == "fire":
-        fire(playerX, bulletY)
+        fire(bulletX, bulletY)
         bulletY -= bulletY_change
 
     # Calling player function to avoid it to disappear
