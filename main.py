@@ -23,14 +23,19 @@ playerY = 490
 playerX_change = 0
 
 # Enemy
-enemyImg = pygame.image.load("img/ufo.png")
-
-# Use random library to make enemy appear in random places
-
-enemyX = random.randint(0, 836)
-enemyY = random.randint(50, 110)
-enemyX_change = 0.2
-enemyY_change = 40
+enemyImg = []
+enemyX = []
+enemyY = []
+enemyX_change = []
+enemyY_change = []
+num_enemies = 4
+for i in range(num_enemies):
+    enemyImg.append(pygame.image.load("img/ufo.png"))
+    # Use random library to make enemy appear in random places
+    enemyX.append(random.randint(0, 836))
+    enemyY.append(random.randint(50, 110))
+    enemyX_change.append(0.2)
+    enemyY_change.append(40)
 
 # Bullet
 
@@ -54,9 +59,9 @@ def player(x, y):
     screen.blit(playerImg, (x, y))
 
 
-def enemy(x, y):
+def enemy(x, y, i):
     # Method to draw on the screen
-    screen.blit(enemyImg, (x, y))
+    screen.blit(enemyImg[i], (x, y))
 
 
 def fire(x, y):
@@ -82,8 +87,8 @@ def destroy():
     bulletState = "ready"
     score += 1
     print(score)
-    enemyX = random.randint(0, 836)
-    enemyY = random.randint(50, 110)
+    enemyX[i] = random.randint(0, 836)
+    enemyY[i] = random.randint(50, 110)
 
 # Game loop: to keep the window open until user decides to close it
 running = True
@@ -122,16 +127,23 @@ while running:
     elif playerX >= 836:
         playerX = 836
 
-    # Movement of enemy
-    enemyX += enemyX_change
+    # Movement of and  boundaries for enemy
+    for i in range(num_enemies):
+        enemyX[i] += enemyX_change[i]
+        if enemyX[i] <= 0:
+            enemyX_change[i] = 0.2
+            enemyY[i] += enemyY_change[i]
+        elif enemyX[i] >= 836:
+            enemyX_change[i] = -0.2
+            enemyY[i] += enemyY_change[i]
 
-    # Boundaries for enemy
-    if enemyX <= 0:
-        enemyX_change = 0.2
-        enemyY += enemyY_change
-    elif enemyX >= 836:
-        enemyX_change = -0.2
-        enemyY += enemyY_change
+        # Collision
+        collided = collision(enemyX[i], enemyY[i], bulletX, bulletY)
+        if collided:
+            destroy()
+        # Avoid enemy to disappear from screen
+        enemy(enemyX[i], enemyY[i], i)
+
 
     # Bullet movement
     if bulletY <= 0:
@@ -142,14 +154,9 @@ while running:
         fire(bulletX, bulletY)
         bulletY -= bulletY_change
 
-    # Collision
-    collided = collision(enemyX, enemyY, bulletX, bulletY)
-    if collided:
-        destroy()
-
     # Calling player function to avoid it to disappear
     player(playerX, playerY)
-    enemy(enemyX, enemyY)
+
 
     # Always update display when adding something new
 
