@@ -31,6 +31,18 @@ enemyY = random.randint(50, 110)
 enemyX_change = 0.2
 enemyY_change = 40
 
+# Bullet
+
+bulletImg = pygame.image.load("img/bullet.png")
+
+# Ready state is when bullet can't be seen, ready to shoot
+# Fire state is when bullet has been shoot
+
+bulletX = 0
+bulletY = 490
+bulletX_change = 0
+bulletY_change = 10
+bulletState = "ready"
 
 def player(x, y):
     # Method to draw on the screen
@@ -40,6 +52,14 @@ def player(x, y):
 def enemy(x, y):
     # Method to draw on the screen
     screen.blit(enemyImg, (x, y))
+
+
+def fire(x, y):
+    global bulletState
+    bulletState = "fire"
+    # To make the bullet appear on top of the ship
+    screen.blit(bulletImg, (x + 16, y + 10))
+
 
 # Game loop: to keep the window open until user decides to close it
 
@@ -59,9 +79,12 @@ while running:
     # If key stroke is pressed check if it is right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change = -0.2
+                playerX_change = -3
             if event.key == pygame.K_RIGHT:
-                playerX_change = 0.2
+                playerX_change = 3
+            if event.key == pygame.K_SPACE:
+                fire(playerX, bulletY)
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
@@ -86,6 +109,11 @@ while running:
     elif enemyX >= 836:
         enemyX_change = -0.2
         enemyY += enemyY_change
+
+    # Bullet movement
+    if bulletState == "fire":
+        fire(playerX, bulletY)
+        bulletY -= bulletY_change
 
     # Calling player function to avoid it to disappear
 
